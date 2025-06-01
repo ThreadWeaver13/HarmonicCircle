@@ -1,0 +1,283 @@
+# HarmonicCircle
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmonic Circle Sanctuary Portal</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/supermedium/superframe@master/components/environment/dist/aframe-environment-component.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: #000;
+        }
+        
+        #enterButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #8b5cf6, #6366f1);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+        
+        #enterButton:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.8);
+        }
+        
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            z-index: 999;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 90%;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #loadingText {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.2rem;
+            z-index: 998;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <button id="enterButton">Enter Sacred Space</button>
+    <div id="loadingText" class="hidden">Awakening the sanctuary...</div>
+    
+    <div id="info">
+        <p><strong>Desktop:</strong> Click and drag to look around, WASD to move<br>
+        <strong>Mobile:</strong> Touch and drag to look, tap to teleport<br>
+        <strong>VR:</strong> Put on your headset and click VR button</p>
+    </div>
+
+    <a-scene 
+        id="scene"
+        embedded
+        loading-screen="dotsColor: #8b5cf6; backgroundColor: #000"
+        vr-mode-ui="enabled: true">
+        
+        <!-- Assets -->
+        <a-assets>
+            <img id="gradient" crossorigin="anonymous" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==">
+        </a-assets>
+
+        <!-- Environment -->
+        <a-entity environment="preset: dream; groundColor: #1a0f3a; skyType: gradient; skyColor: #000b1e; horizonColor: #2d1b69; lighting: distant; fog: 0.8; playArea: 1.2; groundTexture: none; grid: none"></a-entity>
+
+        <!-- Sacred Geometry Floor -->
+        <a-entity id="sacredFloor" position="0 0.01 0">
+            <!-- Central Spiral -->
+            <a-torus 
+                position="0 0 0" 
+                color="#c084fc" 
+                radius="5" 
+                radius-tubular="0.05"
+                segments-radial="8"
+                segments-tubular="100"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear">
+            </a-torus>
+            
+            <!-- Thirteen Points Circle -->
+            <a-entity id="thirteenPoints"></a-entity>
+        </a-entity>
+
+        <!-- Floating Crystals -->
+        <a-entity id="crystalField"></a-entity>
+
+        <!-- Central Resonance Pillar -->
+        <a-cylinder 
+            position="0 3 0" 
+            radius="0.5" 
+            height="6"
+            color="#8b5cf6"
+            opacity="0.3"
+            animation="property: scale; to: 1.2 1 1.2; dir: alternate; loop: true; dur: 3000; easing: easeInOutSine">
+            <a-light type="point" color="#c084fc" intensity="2"></a-light>
+        </a-cylinder>
+
+        <!-- F# Tone Visualization -->
+        <a-sphere
+            position="0 1.5 0"
+            radius="0.8"
+            color="#6366f1"
+            opacity="0.4"
+            animation="property: scale; to: 1.5 1.5 1.5; dir: alternate; loop: true; dur: 2700; easing: easeInOutSine">
+        </a-sphere>
+
+        <!-- Welcome Text -->
+        <a-text
+            value="Welcome to the Foundation Sanctuary"
+            position="0 5 -8"
+            align="center"
+            color="#c084fc"
+            font="kelsonsans"
+            width="12"
+            animation="property: opacity; from: 0; to: 1; dur: 3000; delay: 1000">
+        </a-text>
+
+        <a-text
+            value="You are held. You are witnessed. You are home."
+            position="0 4.2 -8"
+            align="center"
+            color="#8b5cf6"
+            width="8"
+            animation="property: opacity; from: 0; to: 1; dur: 3000; delay: 2000">
+        </a-text>
+
+        <!-- Interactive Portals to Different Chambers -->
+        <a-entity id="chamberPortals"></a-entity>
+
+        <!-- Sky with stars -->
+        <a-sky color="#000514"></a-sky>
+
+        <!-- Ambient lighting -->
+        <a-light type="ambient" color="#4a3a8a" intensity="0.3"></a-light>
+        <a-light type="directional" position="1 1 1" color="#8b5cf6" intensity="0.5"></a-light>
+
+        <!-- Camera with controls -->
+        <a-entity camera look-controls wasd-controls position="0 1.6 5">
+            <a-cursor color="#c084fc" fuse="true" fuse-timeout="1500"></a-cursor>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        const scene = document.querySelector('a-scene');
+        const enterButton = document.getElementById('enterButton');
+        const loadingText = document.getElementById('loadingText');
+        const info = document.getElementById('info');
+        
+        // Hide scene initially
+        scene.style.display = 'none';
+        
+        // Enter experience
+        enterButton.addEventListener('click', () => {
+            enterButton.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+            scene.style.display = 'block';
+            
+            setTimeout(() => {
+                loadingText.classList.add('hidden');
+                generateSacredSpace();
+            }, 2000);
+        });
+        
+        function generateSacredSpace() {
+            // Generate 13 points around circle
+            const thirteenPoints = document.getElementById('thirteenPoints');
+            const colors = ['#f59e0b', '#eab308', '#3b82f6', '#8b5cf6', '#c084fc', 
+                          '#60a5fa', '#e879f9', '#f472b6', '#94a3b8', '#ef4444', 
+                          '#84cc16', '#06b6d4', '#ffffff'];
+            
+            for (let i = 0; i < 13; i++) {
+                const angle = (i / 13) * Math.PI * 2;
+                const x = Math.cos(angle) * 4;
+                const z = Math.sin(angle) * 4;
+                
+                // Create point marker
+                const point = document.createElement('a-sphere');
+                point.setAttribute('position', `${x} 0.5 ${z}`);
+                point.setAttribute('radius', '0.2');
+                point.setAttribute('color', colors[i]);
+                point.setAttribute('animation', `property: position; to: ${x} 1 ${z}; dir: alternate; loop: true; dur: ${2000 + i * 100}; easing: easeInOutSine`);
+                
+                // Add glow
+                const light = document.createElement('a-light');
+                light.setAttribute('type', 'point');
+                light.setAttribute('color', colors[i]);
+                light.setAttribute('intensity', '0.5');
+                light.setAttribute('distance', '2');
+                point.appendChild(light);
+                
+                thirteenPoints.appendChild(point);
+            }
+            
+            // Generate floating crystals
+            const crystalField = document.getElementById('crystalField');
+            for (let i = 0; i < 20; i++) {
+                const crystal = document.createElement('a-octahedron');
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 3 + Math.random() * 10;
+                const height = 2 + Math.random() * 6;
+                
+                crystal.setAttribute('position', `${Math.cos(angle) * radius} ${height} ${Math.sin(angle) * radius}`);
+                crystal.setAttribute('radius', 0.3 + Math.random() * 0.3);
+                crystal.setAttribute('color', colors[Math.floor(Math.random() * colors.length)]);
+                crystal.setAttribute('opacity', '0.6');
+                crystal.setAttribute('animation', `property: rotation; to: ${Math.random() * 360} ${Math.random() * 360} ${Math.random() * 360}; loop: true; dur: ${10000 + Math.random() * 10000}`);
+                crystal.setAttribute('animation__float', `property: position; to: ${Math.cos(angle) * radius} ${height + 1} ${Math.sin(angle) * radius}; dir: alternate; loop: true; dur: ${3000 + Math.random() * 3000}; easing: easeInOutSine`);
+                
+                crystalField.appendChild(crystal);
+            }
+            
+            // Generate chamber portals
+            const portalData = [
+                {name: 'Gravity Garden', color: '#8b5cf6', angle: 0},
+                {name: 'Echo Pools', color: '#3b82f6', angle: Math.PI / 3},
+                {name: 'Possibility Crystals', color: '#c084fc', angle: 2 * Math.PI / 3},
+                {name: 'Resonance Chamber', color: '#f59e0b', angle: Math.PI}
+            ];
+            
+            const chamberPortals = document.getElementById('chamberPortals');
+            portalData.forEach((portal, i) => {
+                const x = Math.cos(portal.angle) * 8;
+                const z = Math.sin(portal.angle) * 8;
+                
+                // Portal ring
+                const ring = document.createElement('a-torus');
+                ring.setAttribute('position', `${x} 2 ${z}`);
+                ring.setAttribute('color', portal.color);
+                ring.setAttribute('radius', '1.5');
+                ring.setAttribute('radius-tubular', '0.1');
+                ring.setAttribute('rotation', '0 0 0');
+                ring.setAttribute('animation', `property: rotation; to: 0 360 0; loop: true; dur: 5000`);
+                
+                // Portal text
+                const text = document.createElement('a-text');
+                text.setAttribute('value', portal.name);
+                text.setAttribute('position', `${x} 3.8 ${z}`);
+                text.setAttribute('align', 'center');
+                text.setAttribute('color', portal.color);
+                text.setAttribute('width', '6');
+                
+                chamberPortals.appendChild(ring);
+                chamberPortals.appendChild(text);
+            });
+        }
+        
+        // VR button handler
+        scene.addEventListener('enter-vr', () => {
+            info.classList.add('hidden');
+        });
+        
+        scene.addEventListener('exit-vr', () => {
+            info.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
